@@ -124,7 +124,7 @@ Parasol runs on a test network with test money until each step below is in place
 3. **Tiered identity checks:** small protections need only a wallet; identity verification applies above set amounts, for buyers and backers.
 4. **Geographic filter:** the app only opens markets where the structure has been cleared.
 5. **No native token:** protections are priced, funded and paid in a regulated stablecoin (USDC), never in a Parasol token.
-6. **Real exposure:** a buyer can only protect a location they are actually exposed to (a home, a farm, a business), declared at request time and verified above the identity threshold.
+6. **Real exposure:** a buyer can only protect an asset they are actually exposed to (a home, a farm, a business), declared at request time with the limit capped at its value, and verified above the identity threshold (D24). Backers are open to anyone.
 
 ## 12. Team and advisors
 

@@ -167,3 +167,10 @@ Format: **Decision** · **Why** · **Alternatives rejected** · **Trade-off we a
 - **Alternatives rejected:** a catalogue of ten or more templates at launch (most would be untested designs); a single template (would not prove the engine is general).
 - **Trade-off:** some buyers (drought, hurricanes, heat, flights) have to wait; the vision still describes them as the expansion path.
 - **Revisit when:** the three templates have real bids, or a buyer segment with a reliable public data source asks for a fourth.
+
+### D24. Backers are open to anyone; buyers protect only what they are exposed to
+- **Decision:** anyone with a wallet can back a request. A buyer can only request protection for an asset they are exposed to: at request time they declare its kind (`home`, `farm`, `business`) and value, and the limit is capped at that value (L0, on from the test network). One wallet cannot hold active protections on the same template and location whose limits add up to more than the declared value. Above `kycThreshold`, identity and exposure are verified by an approved verifier (L1, before real money; SPEC §14). Backers see the total active limit near the location.
+- **Why:** it is the product we set out to build: people insurers turned away get protection, and open bids from anyone price the risk. Requiring exposure keeps a protection from becoming a bet on someone else's home, which would reward causing the event (D7 assumes the buyer is the exposed party).
+- **Alternatives rejected:** anyone may buy on any location (third parties profit from a fire at a home they don't own; pushes classification toward event contracts or gaming); a cap on total limit per location across all buyers (blocks neighbours and apartment buildings with real, separate exposure).
+- **Trade-off:** at L0 exposure is declared, not proven, and several wallets can stack on one location until L1; the first run gains one form step.
+- **Revisit when:** counsel's first opinion arrives (D18), or L1 verifiers are in place.
