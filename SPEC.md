@@ -76,6 +76,11 @@ type ProtectionRequest = {
   maxRateBps: number;                // highest annual rate the buyer accepts
   termStart: number; termEnd: number;
   auctionEnd: number;
+  exposure: {
+    kind: 'home' | 'farm' | 'business';
+    declaredValue: bigint;           // USDC units; limit ≤ declaredValue (D24)
+    attestation?: { verifier: Address; level: 1; capValue: bigint; expiresAt: number; sig: string }; // L1, §14
+  };
   status: 'open' | 'cleared' | 'unfilled' | 'cancelled';
 };
 
@@ -128,7 +133,7 @@ v1 has exactly these three templates (D20):
 
 ## 5. Request and bids
 
-- **Create request:** the buyer picks a template, sets location, parameters, threshold, limit, term and maximum rate, and deposits `limit × maxRateBps × termFraction`. Requires a known template and `termStart ≥ auctionEnd + waitingDays` (14 days for `wildfire.perimeter`, 0 for the other v1 templates).
+- **Create request:** the buyer picks a template, sets location, parameters, threshold, limit, term and maximum rate, and deposits `limit × maxRateBps × termFraction`. Requires a known template and `termStart ≥ auctionEnd + waitingDays` (14 days for `wildfire.perimeter`, 0 for the other v1 templates). The buyer also declares the exposure (`kind`, `declaredValue`). Requires `limit ≤ declaredValue`, and the sum of this wallet's active limits on the same template within 100 m of the location, plus `limit`, `≤ declaredValue` (D24).
 - **Place bid:** `0 < rateBps ≤ maxRateBps`, `capacity > 0`; the backer funds one escrow with the full `capacity` (D19). Bids can be withdrawn until `auctionEnd`; the escrow is then released back to the backer.
 - **Cancel request:** only before the first bid; refunds the buyer.
 
@@ -167,8 +172,8 @@ At or after `auctionEnd`, anyone can call `clear(requestId)`:
 ## 9. Screens
 
 1. **Map:** open requests (time left, best rate) and cleared protections coloured by clearing rate, filterable by template; trigger evidence (perimeters, rainfall windows).
-2. **Request:** pick a template, click a location, set threshold, limit, term and max rate. Shows the template's question and basis-risk note in plain words before signing.
-3. **Request detail / bid:** risk brief, bid book (rate and capacity, anonymised addresses), bid form, countdown, "Clear" when the auction is over.
+2. **Request:** pick a template, click a location, set threshold, limit, term and max rate. Shows the template's question and basis-risk note in plain words before signing. Asks "What is exposed" (home / farm / business), "Declared value" and the checkbox "I am exposed to this asset" (D24).
+3. **Request detail / bid:** risk brief, bid book (rate and capacity, anonymised addresses), bid form, countdown, "Clear" when the auction is over. Shows the badge "Exposure declared, not verified" (or "Verified" at L1) and "Active protection within 100 m: X USDC".
 4. **Protection:** status, filled limit, clearing rate, shares, outcome with evidence, payouts.
 5. **Templates:** the three templates, their sources, basis-risk notes and how many protections use each.
 
@@ -210,6 +215,10 @@ Tests marked *(not yet implemented)* have no counterpart in `packages/core/test/
 16. Two resolver runs on the same data produce the same `dataSha256` and outcome. *(not yet implemented)*
 17. The validator rejects a brief containing a number not in the JSON. *(not yet implemented)*
 
+**Exposure (D24)**
+18. A request with `limit > declaredValue` reverts. *(not yet implemented)*
+19. A second request from the same wallet, on the same template, within 100 m of an active one, reverts if the combined limit exceeds `declaredValue`; the same request from another wallet is accepted. *(not yet implemented)*
+
 ## 12. Data and licensing
 
 - WFIGS Interagency Fire Perimeters, NIFC Open Data (US government, public domain). Historical perimeters: CAL FIRE FRAP (public; check terms before commercial use).
@@ -225,11 +234,11 @@ Tests marked *(not yet implemented)* have no counterpart in `packages/core/test/
 
 ## 14. Access controls (path to real money)
 
-Disabled on the test network; required before real money (VISION §11).
+Disabled on the test network, except the L0 exposure rules (D24); required before real money (VISION §11).
 
 - **Tiered identity:** `kycThreshold` per jurisdiction; requests or bids above it require a verified identity attestation for the wallet.
 - **Geographic filter:** `allowedRegions` list; requests outside it are rejected and the UI hides those markets.
-- **Real exposure:** each request carries the buyer's declaration of exposure type (`home`, `farm`, `business`); above `kycThreshold`, proof of address for the location is attested before clearing.
+- **Real exposure (D24):** L0 (on from the test network): declared kind and value, limit capped at the declared value, per-wallet cap per location (§5). L1 (above `kycThreshold`, before real money): an approved verifier attests identity and exposure (deed or property-tax record for a home; lease plus business registration for a business; farm or cooperative registration for a farm), with a value cap and an expiry; payouts above `kycThreshold` require a valid attestation at settlement. Documents stay with the verifier; only the attestation and its hash are stored.
 - **No native token:** only the configured stablecoin is accepted; the protocol has no token of its own.
 
 ## 15. Open decisions
