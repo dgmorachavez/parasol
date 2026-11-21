@@ -1,10 +1,10 @@
 # Parasol by Avantus — Product Vision
 
-**Version:** 5.1 (21 Nov 2026) · **Team:** Avantus Digital · **Scope:** any parametric risk · **First markets:** homes, businesses, farms and travellers exposed to wildfire, storms, earthquakes and other measurable risks
+**Version:** 5.1 (21 Nov 2026) · **Team:** Avantus Digital · **Scope:** any parametric risk; three at launch (wildfire, extreme rainfall, earthquake) · **First markets:** homes, farms and businesses exposed to those three risks
 
 ## 1. Vision
 
-A decentralized protocol where anyone can back anyone's risk, and the bids, not an insurer, set its price. Any risk whose outcome can be read from public data (a fire perimeter, rainfall, an earthquake's shaking, wind, a river level) can be listed on Parasol and gets the same behaviour: open bids, a market price, automatic payout.
+A decentralized protocol where anyone can back anyone's risk, and the bids, not an insurer, set its price. Any risk whose outcome can be read from public data can be listed on Parasol and gets the same behaviour: open bids, a market price, automatic payout. Parasol launches with three: wildfire, extreme rainfall and earthquakes.
 
 > **Parasol is not an insurer. It is an open risk market. No policies, no adjusters: just public data and code.**
 
@@ -36,7 +36,7 @@ Someone exposed to a risk posts a **protection request** built on a **trigger te
 
 **The flow in one line:** an insurer said no → the person comes to Parasol → lists their risk → third parties bid to back it.
 
-0. **Templates.** A template is a reusable parametric question with its data source, for example "did an official fire perimeter touch this point?" or "did 72 h rainfall here reach X mm?". Anyone can publish one; the market decides whether it gets bids. First templates: wildfire perimeter, storm rainfall and earthquake magnitude. Next: hurricane wind, river level, heat waves, air quality, flight delays and rainy-season days.
+0. **Templates.** A template is a reusable parametric question with its data source, for example "did an official fire perimeter touch this point?" or "did 72 h rainfall here reach X mm?". Parasol launches with exactly three templates: wildfire perimeter, extreme rainfall and earthquake magnitude (D20). More risk types are added as new templates once these three have real bids; later, anyone can publish one.
 
 1. **Request.** The buyer picks a template and sets the location, the threshold, the amount of protection (limit), the term (e.g. 12 months) and the highest price they accept.
 2. **Bids.** Any backer offers a slice of the limit at a yearly rate (e.g. "$50,000 at 3.5% a year"). Every bid locks its full slice of capital in the contract, so every protection is fully funded before it starts.
@@ -46,21 +46,15 @@ Someone exposed to a risk posts a **protection request** built on a **trigger te
 
 **Trust promise:** the rule, the data source and the evidence of every payout are public and on chain. Same data + same rule = same result. No key can send funds anywhere except to the protection's own buyer or backer.
 
-### Any asset, any measurable risk
+### Three risks at launch
 
 | Who | Asset at risk | Trigger | Public data |
 |---|---|---|---|
 | Homeowner, California | House in a fire zone | Official wildfire perimeter touches the property | NIFC / WFIGS perimeters |
-| Homeowner, Caribbean or Gulf coast | House in a hurricane zone | Maximum sustained wind at the location reaches a set speed | NOAA National Hurricane Center |
-| Beach bar owner, Guanacaste | Revenue in the high season | More than N days with heavy rain in the season | ERA5 rainfall |
-| Shop or building owner, Nicoya | Premises in a seismic zone | Earthquake of magnitude ≥ M within R km | USGS earthquake catalog |
-| Riverside workshop | Equipment on the ground floor | River gauge passes flood stage | Official river gauges (USGS, national hydromet) |
-| Cattle rancher | Herd in a heat wave | Heat index above X for N days in a row | ERA5 temperature and humidity |
-| Restaurant with a terrace | Business days lost to smoke or smog | Air quality index above 200 at the nearest station | Official air-quality stations (AirNow, OpenAQ) |
-| Traveller or event organiser | A trip or an event | Flight cancelled or delayed more than 3 hours | Public flight-status data |
 | Coffee farmer, Tarrazú | Harvest | 72 h rainfall above a set amount | ERA5 rainfall |
+| Shop or building owner, Nicoya | Premises in a seismic zone | Earthquake of magnitude ≥ M within R km | USGS earthquake catalog |
 
-Each row is the same product: list the risk, strangers bid, the cheapest bids win, public data decides the payout. Adding a new row means publishing a new template, not building a new product.
+Each row is the same product: list the risk, strangers bid, the cheapest bids win, public data decides the payout. Adding a risk means adding a template, not building a new product. Candidates for the next templates, in no fixed order: drought, hurricane wind, river level, heat waves, air quality, flight delays and rainy-season days.
 
 ## 4. Why our angle is the right one
 
@@ -76,8 +70,8 @@ Each row is the same product: list the risk, strangers bid, the cheapest bids wi
 
 | User | Situation | What Parasol gives |
 |---|---|---|
-| Anyone denied cover | A homeowner dropped in a fire zone; a Costa Rican coffee farmer no insurer will cover for storms or drought | Protection in minutes, paid automatically, at a price set by open competition |
-| Template authors | Know a risk and a public data source for it | Publish a template; earn when it is used (to be defined) |
+| Anyone denied cover | A homeowner dropped in a fire zone; a Costa Rican coffee farmer no insurer will cover for storms | Protection in minutes, paid automatically, at a price set by open competition |
+| Template authors (after launch) | Know a risk and a public data source for it | Publish a template; earn when it is used (to be defined) |
 | Backer (anyone with capital) | Wants yield on risk they can understand | Direct access to individual risks, with public data on each one |
 | Lenders, buyers, cities | Need to know what a local risk costs | Public map of clearing rates |
 
@@ -97,7 +91,7 @@ Protocol fee on each cleared price (e.g. 5%), paid out of the backers' earnings.
 
 1. Enough independent backers bid that clearing rates are competitive.
 2. People who were denied cover accept a parametric payout in exchange for getting protection at all.
-3. Templates can be added quickly enough, with reliable public data, that new risks find buyers and backers.
+3. The three launch templates attract buyers and backers, and new templates can be added with reliable public data once they do.
 4. Official data (perimeters, rainfall) is published fast and reliably enough to settle within days.
 5. The dispute process is cheap enough that wrong outcomes get challenged.
 
@@ -118,7 +112,7 @@ None of the established players lets anyone bid on an individual risk and publis
 2. **Pilot:** one area per template, real data, test money, real backers bidding.
 3. **Mainnet launch.**
 4. **Decentralized resolution:** outcomes and disputes move from the v1 resolver key to a decentralized resolution layer with bonded challenges.
-5. **More templates:** drought, wind, river level, heat, air quality, and templates published by others.
+5. **More templates:** new risk types one at a time (drought, wind, river level, heat, air quality), then templates published by others.
 6. **Secondary market:** backers trade their positions before expiry.
 
 ## 11. Path to real money

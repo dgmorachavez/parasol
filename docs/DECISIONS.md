@@ -27,7 +27,7 @@ Format: **Decision** · **Why** · **Alternatives rejected** · **Trade-off we a
 - **Why:** one engine serves homes, farms, businesses and travellers; the market decides which templates get bids.
 - **Alternatives rejected:** a single-peril product (fire only, or crops only): smaller market, no network effect.
 - **Trade-off:** every template needs reliable public data and its own tests.
-- **Revisit when:** a template's data source proves unreliable.
+- **Revisit when:** a template's data source proves unreliable. Scope of the launch set: D20.
 
 ### D4. Uniform-price reverse auction
 - **Decision:** cheapest bids fill the limit; every accepted backer earns the rate of the last bid needed.
@@ -156,3 +156,14 @@ Format: **Decision** · **Why** · **Alternatives rejected** · **Trade-off we a
 - **Alternatives rejected:** funding only at clearing (bids are promises until then; a winner who does not fund leaves the protection short); a pooled escrow per request (Trustless Work lacks per-depositor accounting, D9).
 - **Trade-off:** backers' capital is locked during the auction even if their bid loses, and returning the unused part of a partial fill needs a split resolution (to confirm on testnet).
 - **Revisit when:** Trustless Work supports partial releases or multi-depositor escrows, or auctions get long enough that locked losing bids hurt participation.
+
+---
+
+## Product (continued)
+
+### D20. Launch with exactly three templates
+- **Decision:** v1 ships three trigger templates and no others: `wildfire.perimeter` (WFIGS/NIFC), `rain.rolling_max` (ERA5 via Open-Meteo) and `quake.magnitude_radius` (USGS). The registry rejects any other id. Third-party publishing waits until after v1.
+- **Why:** each template needs a reliable data source, an adapter, real fixtures, anti-manipulation rules and its own tests; designing many at once spreads the work thin and delays all of them. These three cover three different kinds of trigger (a shape, a time series and a discrete event), already have their evaluators and tests in `packages/core`, and map to the three reference scenarios. Together they prove the claim that matters: one market, any measurable risk.
+- **Alternatives rejected:** a catalogue of ten or more templates at launch (most would be untested designs); a single template (would not prove the engine is general).
+- **Trade-off:** some buyers (drought, hurricanes, heat, flights) have to wait; the vision still describes them as the expansion path.
+- **Revisit when:** the three templates have real bids, or a buyer segment with a reliable public data source asks for a fourth.

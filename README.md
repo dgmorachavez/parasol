@@ -2,7 +2,7 @@
 
 **Parasol is not an insurer. It is an open risk market. No policies, no adjusters: just public data and code.**
 
-Anyone exposed to a measurable risk (wildfire, storms, drought, earthquakes) lists it on Parasol; anyone with capital bids to back it; the cheapest bids win and set the price of the risk. A house in a fire zone, a beach bar in the rainy season, a shop in a seismic zone, a herd in a heat wave, a flight: any asset, any risk that public data can measure. Every protection is fully funded on chain and pays automatically when public data shows the event happened.
+Anyone exposed to a measurable risk lists it on Parasol; anyone with capital bids to back it; the cheapest bids win and set the price of the risk. Parasol launches with three risks: wildfire (a home in a fire zone), extreme rainfall (a coffee farm in storm season) and earthquakes (a shop in a seismic zone). Every new risk type is one more template on the same market. Every protection is fully funded on chain and pays automatically when public data shows the event happened.
 
 - Vision: [VISION.md](VISION.md)
 - Specification: [SPEC.md](SPEC.md)

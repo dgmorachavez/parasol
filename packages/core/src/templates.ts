@@ -86,7 +86,7 @@ export function evaluateQuake(point: LonLat, termStartUtc: string, termEndUtc: s
 }
 
 // ---------- registry of v1 templates ----------
-/** v1 templates and the minimum days between the end of the auction and the start of the term. */
+/** The three v1 templates (D20) and the minimum days between the end of the auction and the start of the term. */
 export const TEMPLATE_WAITING_DAYS: Readonly<Record<string, number>> = {
   'wildfire.perimeter': 14, // anti-manipulation (SPEC §4, D7)
   'rain.rolling_max': 0,

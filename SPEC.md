@@ -4,7 +4,7 @@
 
 ## 1. Scope and invariants
 
-Parasol is not an insurer; it is an open risk market: no policies, no adjusters, just public data and code. It is a decentralized, on-chain protocol for **any parametric risk**: anything whose outcome can be read from public data (a fire perimeter, rainfall, an earthquake's shaking, wind speed, a river level). Parts: **trigger templates**, **protection requests**, **bids**, **uniform-price clearing**, **escrow**, **oracle settlement** and a public **price map**.
+Parasol is not an insurer; it is an open risk market: no policies, no adjusters, just public data and code. It is a decentralized, on-chain protocol for parametric risk: anything whose outcome can be read from public data. v1 ships exactly three trigger templates (wildfire, extreme rainfall, earthquake; D20); the engine is built so more can be added without changing it. Parts: **trigger templates**, **protection requests**, **bids**, **uniform-price clearing**, **escrow**, **oracle settlement** and a public **price map**.
 
 **Invariants**
 
@@ -40,7 +40,7 @@ Resolver (Node) with one adapter per template
   ├─ wildfire.perimeter → WFIGS / NIFC perimeters
   ├─ rain.rolling_max → ERA5 hourly precipitation (Open-Meteo)
   ├─ quake.magnitude_radius → USGS earthquake catalog
-  └─ (next) drought (rain.rolling_min), wind, river level, heat, air quality, flight status, rainy days
+  └─ (after v1) one new adapter per new template
         │
 Risk brief service (AI, server side) → validated text per request
 ```
@@ -50,14 +50,14 @@ Risk brief service (AI, server side) → validated text per request
 ## 3. Domain model
 
 ```ts
-// A reusable kind of parametric question. Anyone can publish one; the market decides if it gets bids.
+// A reusable kind of parametric question. v1 registers three (D20); third-party publishing comes later.
 type TriggerTemplate = {
   id: string;                        // e.g. 'wildfire.perimeter', 'rain.rolling_max'
   version: number;
   description: string;               // the question in plain words
   source: { provider: string; dataset: string; version: string; license: string };
   unit: string;                      // e.g. 'tenths_mm', 'boolean', 'cm_s2'
-  aggregation: 'intersects' | 'rolling_max' | 'rolling_min' | 'max';
+  aggregation: 'intersects' | 'rolling_max' | 'max';   // more as new templates need them
   comparator: '>=' | '<=' | 'true';
   params: string[];                  // e.g. ['radiusM'] or ['windowHours']
   adapterId: string;                 // resolver adapter that evaluates it
@@ -110,23 +110,19 @@ type Outcome = {
 
 ## 4. Trigger templates
 
-| Template | Question | Data | Status |
-|---|---|---|---|
-| `wildfire.perimeter` | Does an official fire perimeter, for a fire started in the term, of at least `minAcres` and ignited at least `minIgnitionDistanceM` from the point, intersect the circle of `radiusM` around the point? | WFIGS Interagency Fire Perimeters (NIFC, public domain) | v1 |
-| `rain.rolling_max` | Does the rainfall summed over any `windowHours` window in the term reach `threshold`? (floods, storms) | ERA5 hourly precipitation via Open-Meteo (CC BY 4.0) | v1 |
-| `rain.rolling_min` | Does the rainfall over every `windowHours` window stay at or below `threshold`? (drought) | Same | Next |
-| `quake.magnitude_radius` | Does an earthquake of magnitude ≥ `threshold` occur within `radiusKm` of the point? | USGS earthquake catalog (public domain) | v1 |
-| `quake.pga` | Does peak ground acceleration at the point reach `threshold`? | USGS ShakeMap | Later |
-| `rain.days_over` | Are there more than `maxDays` days in the term with rainfall ≥ `threshold`? (seasonal businesses) | ERA5 via Open-Meteo | Next |
-| `heat.consecutive_days` | Does the daily maximum heat index stay ≥ `threshold` for `days` days in a row? (livestock, outdoor work) | ERA5 temperature and humidity | Next |
-| `air.aqi` | Does the daily air-quality index at the nearest official station reach `threshold`? | AirNow / OpenAQ | Next |
-| `flight.delay` | Is the flight cancelled, or does it arrive more than `minutes` late? | Public flight-status data | Next |
-| `wind.max_sustained` | Does the maximum sustained wind at the point reach `threshold` during a named storm? (hurricanes) | NOAA National Hurricane Center | Next |
-| `river.level` | Does the gauge reach `threshold` (e.g. flood stage)? | USGS / national hydromet gauges | Next |
+v1 has exactly these three templates (D20):
+
+| Template | Question | Data |
+|---|---|---|
+| `wildfire.perimeter` | Does an official fire perimeter, for a fire started in the term, of at least `minAcres` and ignited at least `minIgnitionDistanceM` from the point, intersect the circle of `radiusM` around the point? | WFIGS Interagency Fire Perimeters (NIFC, public domain) |
+| `rain.rolling_max` | Does the rainfall summed over any `windowHours` window in the term reach `threshold`? (floods, storms) | ERA5 hourly precipitation via Open-Meteo (CC BY 4.0) |
+| `quake.magnitude_radius` | Does an earthquake of magnitude ≥ `threshold` occur within `radiusKm` of the point? | USGS earthquake catalog (public domain) |
+
+**Expansion path:** a new risk type is added only as a new template with a public data source, an adapter, fixtures that prove it and its own acceptance tests; the auction, escrow and settlement do not change. Candidates, not designed yet: drought (`rain.rolling_min`), seasonal rain days, heat waves, air quality, hurricane wind, river level, ground shaking, flight delays.
 
 **Anti-manipulation rules (moral hazard):** the payout depends on a public measurement, not on the buyer's loss, so damaging one's own property never triggers anything. Each template must also state why the buyer cannot move the measurement. `wildfire.perimeter` defaults: `minAcres` 100 (a house fire never gets a wildland perimeter), `minIgnitionDistanceM` 2,000 (a fire started near the property does not count), and a `waitingDays` of 14 between the end of the auction and the start of the term (enforced when the request is created). Weather and earthquake templates cannot be influenced by the buyer. A dispute can also reject an outcome with evidence that the fire was set by the buyer.
 
-**Publishing a template:** anyone can publish to `TemplateRegistry` with its description, source, adapter id and fixture hash. A template is usable once a resolver runs its adapter and its fixtures pass. Templates are versioned and immutable; a fix is a new version.
+**Template registry:** in v1 the registry holds the three templates above and rejects any other id. Templates are versioned and immutable; a fix is a new version. After v1, anyone will be able to publish a template with its description, source, adapter id and fixture hash; it becomes usable once a resolver runs its adapter and its fixtures pass (open decision 3).
 
 **Rainfall rules:** Open-Meteo timestamps mark the end of each hour, so timestamp `T` covers `[T−1h, T)`; a window exists only if all its hours are present; pin `models=era5`, `timezone=GMT`.
 
@@ -157,7 +153,7 @@ At or after `auctionEnd`, anyone can call `clear(requestId)`:
 - **After the window**, for each accepted bid's escrow:
   - `triggered` → the full share goes to the buyer.
   - not triggered and `now ≥ termEnd` → the full share goes back to its backer.
-- **Early trigger:** a `rolling_max`, `intersects` or `magnitude_radius` template can trigger before `termEnd`; a `rolling_min` template only after `termEnd`.
+- **Early trigger:** all three v1 templates can trigger before `termEnd`. A future template that tests for the absence of an event (e.g. drought) settles only after `termEnd`.
 - **No data:** without an outcome nothing is released (fail closed).
 - **Protocol fee:** `feeBps` of the price (default 500 = 5%), taken at clearing.
 
@@ -174,7 +170,7 @@ At or after `auctionEnd`, anyone can call `clear(requestId)`:
 2. **Request:** pick a template, click a location, set threshold, limit, term and max rate. Shows the template's question and basis-risk note in plain words before signing.
 3. **Request detail / bid:** risk brief, bid book (rate and capacity, anonymised addresses), bid form, countdown, "Clear" when the auction is over.
 4. **Protection:** status, filled limit, clearing rate, shares, outcome with evidence, payouts.
-5. **Templates:** published templates, their sources and how many protections use each.
+5. **Templates:** the three templates, their sources, basis-risk notes and how many protections use each.
 
 ## 10. Reference scenarios: three assets, three risks, one market
 
@@ -183,7 +179,7 @@ At or after `auctionEnd`, anyone can call `clear(requestId)`:
 - **A shop in Nicoya (earthquake):** a shop owner lists `quake.magnitude_radius`, magnitude ≥ 7.0 within 50 km, term 2012-01-01 to 2012-12-31, replayed against the 5 September 2012 Nicoya earthquake (USGS catalog).
 - **Bids:** 4–5 test backer wallets with different rates; at least one request clears partially and one goes unfilled.
 - **Resolution:** the resolver runs the three adapters, posts outcomes, the dispute window is minutes long, payouts execute.
-- **Out of scope for v1:** real money, secondary market, templates beyond these three, decentralized oracle network.
+- **Out of scope for v1:** real money, secondary market, templates beyond these three (D20), third-party template publishing, decentralized oracle network.
 
 **Walkthrough:** "Insurers say no to Palisades homes" → a homeowner posts a request → three strangers bid → it clears at the last accepted rate → the map shows a price for that street → replay January 2025 → the perimeter touches the homes inside it → they are paid in seconds, with evidence → "same market, different risk": a Tarrazú coffee farmer an insurer turned down lists storm protection, strangers bid, and the November 2024 storms trigger the payout → a shop in Nicoya replays the 2012 earthquake → "any asset, any risk you can measure, anyone can back."
 
